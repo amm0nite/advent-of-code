@@ -1,4 +1,3 @@
-import { cp } from "fs";
 import { getInputLines } from "../../input.js";
 
 const lines = await getInputLines();
