@@ -1,8 +1,6 @@
-import fs from 'fs';
-import { promisify } from 'util';
+import { getInputLines } from "../../input.js";
 
-const input = await (promisify(fs.readFile))('input.txt', { encoding: 'utf8' });
-const lines = input.split("\n");
+const lines = await getInputLines();
 const elves = lines.reduce((accumulator, value) => {
     if (value !== '') accumulator[accumulator.length - 1] += parseInt(value);
     else accumulator.push(0);
