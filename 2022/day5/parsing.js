@@ -28,3 +28,14 @@ export function parseStacks(lines) {
 
     return stacks;
 }
+
+export function parseMove(movePhrase) {
+    const matches = movePhrase.match(/move (\d+) from (\d+) to (\d+)/);
+    if (!matches) return null;
+
+    const quantity = parseInt(matches[1]);
+    const from = parseInt(matches[2]) - 1;
+    const to = parseInt(matches[3]) - 1;
+
+    return { quantity, from, to };
+}
