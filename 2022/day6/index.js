@@ -3,7 +3,6 @@ import { getInputLines } from "../../input.js";
 const lines = await getInputLines();
 
 const data = lines[0];
-const stack = [];
 
 Array.prototype.repeats = function() {
     for (const current of this) {
@@ -13,17 +12,19 @@ Array.prototype.repeats = function() {
     return false;
 }
 
-function answer1() {
+function answer(limit) {
     let counter = 0;
+    const stack = [];
     for (const c of data) {
-        if (stack.length === 4) stack.shift();
+        if (stack.length === limit) stack.shift();
         
         stack.push(c);
         counter++;
 
-        if (stack.length !== 4) continue;
+        if (stack.length !== limit) continue;
         if (!stack.repeats()) return counter;
     }
 }
 
-console.log('answer1', answer1()); //1702
+console.log('answer1', answer(4));  //1702
+console.log('answer2', answer(14)); //3559
