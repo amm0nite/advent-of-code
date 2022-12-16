@@ -23,7 +23,7 @@ func check(err error) {
 }
 
 func createDir(name string) *file {
-	file := file{name: name, size: -1, isDir: true, children: make([]*file, 0)}
+	file := file{name: name, size: -1, isDir: true, parent: nil, children: make([]*file, 0)}
 	return &file
 }
 
@@ -39,12 +39,14 @@ func main() {
 	for _, line := range lines {
 		if strings.HasPrefix(line, "$ cd") {
 			processCd(current, line)
-			continue
 		}
 		if strings.HasPrefix(line, "dir") {
 			processDir(current, line)
-			continue
 		}
+
+		fmt.Println("TREE")
+		printTree(current, 0)
+		fmt.Println()
 	}
 }
 
@@ -58,9 +60,7 @@ func findChildren(current *file, name string) (*file, error) {
 }
 
 func processCd(current *file, line string) {
-	fmt.Println("change directory", line)
-
-	regex, _ := regexp.Compile(`$ cd ([a-z]+|\.\.)`)
+	regex, _ := regexp.Compile(`\$ cd ([a-z]+|\.\.)`)
 	if !regex.MatchString(line) {
 		return
 	}
@@ -73,14 +73,12 @@ func processCd(current *file, line string) {
 		return
 	}
 
-	directory, err := findChildren(current, name)
+	child, err := findChildren(current, name)
 	check(err)
-	*current = *directory
+	*current = *child
 }
 
 func processDir(current *file, line string) {
-	fmt.Println("directory", line)
-
 	regex, _ := regexp.Compile("dir ([a-z]+)")
 	matches := (regex.FindStringSubmatch(line))
 	name := matches[1]
@@ -89,4 +87,18 @@ func processDir(current *file, line string) {
 	newDir.parent = current
 
 	current.children = append(current.children, newDir)
+}
+
+func printTree(current *file, deepness int) {
+	for i := 0; i < deepness; i++ {
+		fmt.Print("-")
+	}
+	fmt.Print(current.name)
+	if current.parent != nil {
+		fmt.Print(" (", current.parent.name, ")")
+	}
+	fmt.Println()
+	for _, child := range current.children {
+		printTree(child, deepness+1)
+	}
 }
