@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -16,6 +17,10 @@ type file struct {
 	children []*file
 }
 
+type explorer struct {
+	current *file
+}
+
 func check(err error) {
 	if err != nil {
 		panic(err)
@@ -23,7 +28,7 @@ func check(err error) {
 }
 
 func createDir(name string) *file {
-	file := file{name: name, size: -1, isDir: true, parent: nil, children: make([]*file, 0)}
+	file := file{name: name, size: 0, isDir: true, parent: nil, children: make([]*file, 0)}
 	return &file
 }
 
@@ -31,21 +36,26 @@ func main() {
 	data, err := os.ReadFile("input.txt")
 	check(err)
 	lines := strings.Split(string(data), "\n")
+	//lines = []string{"$ cd /", "dir aaa", "dir bbb", "$ cd aaa", "dir ccc", "dir ddd"}
 
-	root := *createDir("root")
-	fmt.Println(root)
-	current := &root
+	root := createDir("root")
+	exp := &explorer{current: root}
+
+	filePattern, _ := regexp.Compile(`^[0-9]+\s`)
 
 	for _, line := range lines {
 		if strings.HasPrefix(line, "$ cd") {
-			processCd(current, line)
+			processCd(exp, line)
 		}
 		if strings.HasPrefix(line, "dir") {
-			processDir(current, line)
+			processDir(exp, line)
+		}
+		if filePattern.MatchString(line) {
+			processFile(exp, line)
 		}
 
 		fmt.Println("TREE")
-		printTree(current, 0)
+		printTree(root, 0)
 		fmt.Println()
 	}
 }
@@ -59,7 +69,7 @@ func findChildren(current *file, name string) (*file, error) {
 	return nil, errors.New("children not found")
 }
 
-func processCd(current *file, line string) {
+func processCd(exp *explorer, line string) {
 	regex, _ := regexp.Compile(`\$ cd ([a-z]+|\.\.)`)
 	if !regex.MatchString(line) {
 		return
@@ -69,24 +79,31 @@ func processCd(current *file, line string) {
 	name := matches[1]
 
 	if name == ".." {
-		*current = *current.parent
+		exp.current = exp.current.parent
 		return
 	}
 
-	child, err := findChildren(current, name)
+	child, err := findChildren(exp.current, name)
 	check(err)
-	*current = *child
+	exp.current = child
 }
 
-func processDir(current *file, line string) {
+func processDir(exp *explorer, line string) {
 	regex, _ := regexp.Compile("dir ([a-z]+)")
 	matches := (regex.FindStringSubmatch(line))
 	name := matches[1]
 
 	newDir := createDir(name)
-	newDir.parent = current
+	newDir.parent = exp.current
 
-	current.children = append(current.children, newDir)
+	exp.current.children = append(exp.current.children, newDir)
+}
+
+func processFile(exp *explorer, line string) {
+	regex, _ := regexp.Compile(`^([0-9]+)\s(.+)`)
+	matches := (regex.FindStringSubmatch(line))
+	size, _ := strconv.Atoi(matches[1])
+	exp.current.size += size
 }
 
 func printTree(current *file, deepness int) {
@@ -95,10 +112,12 @@ func printTree(current *file, deepness int) {
 	}
 	fmt.Print(current.name)
 	if current.parent != nil {
-		fmt.Print(" (", current.parent.name, ")")
+		fmt.Print(" (", current.size, ")")
 	}
 	fmt.Println()
 	for _, child := range current.children {
 		printTree(child, deepness+1)
 	}
 }
+
+// https://go.dev/play/p/aHBe3KcwihW
