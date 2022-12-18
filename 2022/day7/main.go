@@ -36,7 +36,7 @@ func main() {
 	data, err := os.ReadFile("input.txt")
 	check(err)
 	lines := strings.Split(string(data), "\n")
-	//lines = []string{"$ cd /", "dir aaa", "dir bbb", "$ cd aaa", "dir ccc", "dir ddd"}
+	//lines = []string{"$ cd /", "dir aaa", "dir bbb", "10 file.txt", "$ cd aaa", "dir ccc", "dir ddd", "25 file.mp3"}
 
 	root := createDir("root")
 	exp := &explorer{current: root}
@@ -53,11 +53,14 @@ func main() {
 		if filePattern.MatchString(line) {
 			processFile(exp, line)
 		}
-
-		fmt.Println("TREE")
-		printTree(root, 0)
-		fmt.Println()
 	}
+
+	fmt.Println("TREE")
+	printTree(root, 0)
+	fmt.Println()
+
+	answer1 := sumBigest(root)
+	fmt.Println("answer1", answer1)
 }
 
 func findChildren(current *file, name string) (*file, error) {
@@ -103,21 +106,33 @@ func processFile(exp *explorer, line string) {
 	regex, _ := regexp.Compile(`^([0-9]+)\s(.+)`)
 	matches := (regex.FindStringSubmatch(line))
 	size, _ := strconv.Atoi(matches[1])
-	exp.current.size += size
+	upwardSizeUpdate(exp.current, size)
+}
+
+func upwardSizeUpdate(current *file, size int) {
+	current.size += size
+	if current.parent != nil {
+		upwardSizeUpdate(current.parent, size)
+	}
+}
+
+func sumBigest(current *file) int {
+	sum := 0
+	if current.parent != nil && current.isDir && current.size > 100000 {
+		sum += current.size
+	}
+	for _, file := range current.children {
+		sum += sumBigest(file)
+	}
+	return sum
 }
 
 func printTree(current *file, deepness int) {
 	for i := 0; i < deepness; i++ {
 		fmt.Print("-")
 	}
-	fmt.Print(current.name)
-	if current.parent != nil {
-		fmt.Print(" (", current.size, ")")
-	}
-	fmt.Println()
+	fmt.Println(current.name, "(", current.size, ")")
 	for _, child := range current.children {
 		printTree(child, deepness+1)
 	}
 }
-
-// https://go.dev/play/p/aHBe3KcwihW
