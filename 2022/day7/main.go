@@ -33,10 +33,10 @@ func createDir(name string) *file {
 }
 
 func main() {
-	data, err := os.ReadFile("input.txt")
+	inputFileName := "input.txt"
+	data, err := os.ReadFile(inputFileName)
 	check(err)
 	lines := strings.Split(string(data), "\n")
-	//lines = []string{"$ cd /", "dir aaa", "dir bbb", "10 file.txt", "$ cd aaa", "dir ccc", "dir ddd", "25 file.mp3"}
 
 	root := createDir("root")
 	exp := &explorer{current: root}
@@ -59,8 +59,16 @@ func main() {
 	printTree(root, 0)
 	fmt.Println()
 
-	answer1 := sumBigest(root)
+	answer1 := sumWithLimit(root, 100000)
 	fmt.Println("answer1", answer1)
+
+	totalSpace := 70000000
+	spaceNeeded := 30000000
+	spaceUsed := root.size
+	spaceToFree := (spaceNeeded + spaceUsed) - totalSpace
+
+	answer2 := findClosest(root, spaceToFree, 999999999)
+	fmt.Println("answer2", answer2)
 }
 
 func findChildren(current *file, name string) (*file, error) {
@@ -116,15 +124,26 @@ func upwardSizeUpdate(current *file, size int) {
 	}
 }
 
-func sumBigest(current *file) int {
+func sumWithLimit(current *file, limit int) int {
 	sum := 0
-	if current.parent != nil && current.isDir && current.size > 100000 {
+	if current.parent != nil && current.isDir && current.size <= limit {
 		sum += current.size
 	}
 	for _, file := range current.children {
-		sum += sumBigest(file)
+		sum += sumWithLimit(file, limit)
 	}
 	return sum
+}
+
+func findClosest(current *file, target int, best int) int {
+	distance := current.size - target
+	if distance > 0 && distance < (best-target) {
+		best = current.size
+	}
+	for _, file := range current.children {
+		best = findClosest(file, target, best)
+	}
+	return best
 }
 
 func printTree(current *file, deepness int) {
