@@ -5,6 +5,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 type World struct {
@@ -14,7 +16,7 @@ type World struct {
 }
 
 func main() {
-	inputFileName := "test_input.txt"
+	inputFileName := "input.txt"
 	data, _ := os.ReadFile(inputFileName)
 
 	lines := strings.Split(string(data), "\n")
@@ -38,19 +40,23 @@ func main() {
 
 	world := World{forest: forest, width: width, height: height}
 
+	visible := color.New(color.FgWhite)
+	notVisible := color.New(color.FgRed)
+
 	answer1 := 0
 	for i := 0; i < width; i++ {
 		for j := 0; j < height; j++ {
 			if world.isVisible(i, j) {
-				fmt.Print(world.forest[i][j])
+				visible.Print(fmt.Sprint(world.forest[i][j]))
 				answer1++
 			} else {
-				fmt.Print("x")
+				notVisible.Print(fmt.Sprint(world.forest[i][j]))
 			}
 		}
 		fmt.Println()
 	}
-	fmt.Println("answer1", answer1)
+
+	fmt.Println("answer1", answer1) //1684
 }
 
 func (w World) look(x int, y int, orientation bool, direction bool) bool {
@@ -85,13 +91,12 @@ func (w World) look(x int, y int, orientation bool, direction bool) bool {
 		tree := w.forest[_x][_y]
 		//fmt.Println("looking", orientation, direction, "(", _x, _y, ")", tree, highest)
 
-		if tree < highest {
-			return false
-		}
 		if _x == x && _y == y {
 			return tree > highest
 		}
-		highest = tree
+		if tree > highest {
+			highest = tree
+		}
 	}
 	return true
 }
