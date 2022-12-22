@@ -57,6 +57,18 @@ func main() {
 	}
 
 	fmt.Println("answer1", answer1) //1684
+
+	answer2 := 0
+	for i := 0; i < width; i++ {
+		for j := 0; j < height; j++ {
+			score := world.sceneScore(i, j)
+			if score > answer2 {
+				answer2 = score
+			}
+		}
+	}
+
+	fmt.Println("answer2", answer2)
 }
 
 func (w World) look(x int, y int, orientation bool, direction bool) bool {
@@ -101,6 +113,44 @@ func (w World) look(x int, y int, orientation bool, direction bool) bool {
 	return true
 }
 
+func (w World) sceneLook(x int, y int, orientation bool, direction bool) int {
+	highest := w.forest[x][y]
+
+	_x := x
+	_y := y
+
+	counter := -1
+	start := true
+
+	for _x >= 0 && _x < w.width && _y >= 0 && _y < w.height {
+		tree := w.forest[_x][_y]
+		counter++
+
+		//fmt.Println("looking", orientation, direction, "(", _x, _y, ")", tree, highest)
+
+		if !start && tree >= highest {
+			break
+		}
+
+		if orientation && direction {
+			_x++
+		}
+		if orientation && !direction {
+			_x--
+		}
+		if !orientation && direction {
+			_y++
+		}
+		if !orientation && !direction {
+			_y--
+		}
+
+		start = false
+	}
+
+	return counter
+}
+
 func (w World) isVisible(x int, y int) bool {
 	res := false
 
@@ -121,4 +171,13 @@ func (w World) isVisible(x int, y int) bool {
 
 	res = w.look(x, y, false, false)
 	return res
+}
+
+func (w World) sceneScore(x int, y int) int {
+	score1 := w.sceneLook(x, y, true, true)
+	score2 := w.sceneLook(x, y, true, false)
+	score3 := w.sceneLook(x, y, false, true)
+	score4 := w.sceneLook(x, y, false, false)
+	//fmt.Println("score", score1, score2, score3, score4)
+	return score1 * score2 * score3 * score4
 }
