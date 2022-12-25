@@ -33,8 +33,15 @@ type SnakePart struct {
 }
 
 type Snake struct {
-	head SnakePart
-	tail SnakePart
+	parts []*SnakePart
+}
+
+func createSnake(length int) *Snake {
+	snake := Snake{parts: []*SnakePart{}}
+	for i := 0; i < length; i++ {
+		snake.parts = append(snake.parts, &SnakePart{path: []*Point{}})
+	}
+	return &snake
 }
 
 func main() {
@@ -44,18 +51,27 @@ func main() {
 	lines := strings.Split(string(data), "\n")
 	lines = lines[:len(lines)-1]
 
-	head := SnakePart{path: []*Point{}}
-	tail := SnakePart{path: []*Point{}}
-	snake := Snake{head: head, tail: tail}
+	smallSnake := createSnake(2)
+	bigSnake := createSnake(10)
 
 	for _, line := range lines {
 		splat := strings.Split(line, " ")
 		distance, _ := strconv.Atoi(splat[1])
 		move := Move{direction: splat[0], distance: distance}
-		snake.move(move)
+		smallSnake.move(move)
+		bigSnake.move(move)
 	}
 
-	fmt.Println("answer1", snake.tail.countUnique()) //6209
+	fmt.Println("answer1", smallSnake.tail().countUnique()) //6209
+	fmt.Println("answer2", bigSnake.tail().countUnique())   //2460
+}
+
+func (s *Snake) head() *SnakePart {
+	return s.parts[0]
+}
+
+func (s *Snake) tail() *SnakePart {
+	return s.parts[len(s.parts)-1]
 }
 
 func (sp *SnakePart) position() *Point {
@@ -68,9 +84,14 @@ func (sp *SnakePart) position() *Point {
 func (s *Snake) move(m Move) {
 	//fmt.Println(m)
 	for i := 0; i < m.distance; i++ {
-		s.head.step(m.direction)
-		direction := s.tail.follow(s.head)
-		s.tail.step(direction)
+		s.head().step(m.direction)
+		previous := s.head()
+		for j := 1; j < len(s.parts); j++ {
+			current := s.parts[j]
+			direction := current.follow(*previous)
+			current.step(direction)
+			previous = current
+		}
 	}
 }
 
