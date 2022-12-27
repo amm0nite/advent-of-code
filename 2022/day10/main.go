@@ -47,6 +47,17 @@ func main() {
 			answer1 += cpu.register * cpu.cycle
 		}
 
+		pos := (cpu.cycle - 1) % 40
+		lit := cpu.register >= pos-1 && cpu.register <= pos+1
+		if lit {
+			fmt.Print("█")
+		} else {
+			fmt.Print(" ")
+		}
+		if pos == 39 {
+			fmt.Println()
+		}
+
 		cpu.process(*instruction)
 		cpu.cycle++
 	}
