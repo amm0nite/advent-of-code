@@ -1,3 +1,5 @@
+github.com/Shopify/go-lua v0.0.0-20221004153744-91867de107cf h1:VSUCKpFV0AfYGslgQSRdBI9HCVp1TCXJmScWD0VXL5g=
+github.com/Shopify/go-lua v0.0.0-20221004153744-91867de107cf/go.mod h1:UCCi6u6YA8oXfJ15vEMiMGIaWWfLiOacinBPHxLXtEU=
 github.com/fatih/color v1.13.0 h1:8LOYc1KYPPmyKMuN8QV2DNRWNbLo6LZ0iLs8+mlH53w=
 github.com/fatih/color v1.13.0/go.mod h1:kLAiJbzzSOZDVNGyDpeOxJ47H46qBXwg5ILebYFFOfk=
 github.com/mattn/go-colorable v0.1.9 h1:sqDoxXbdeALODt0DAeJCVp38ps9ZogZEAXjus69YV3U=
