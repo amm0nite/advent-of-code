@@ -41,7 +41,7 @@ func solve(lines []string) (int, error) {
 		if line == "" {
 			continue
 		}
-		calibration, err := CreateCalibrationFromLine(line)
+		calibration, err := createCalibrationFromLine(line)
 		if err != nil {
 			return 0, err
 		}
@@ -51,7 +51,22 @@ func solve(lines []string) (int, error) {
 	return doc.sum(), nil
 }
 
-func CreateCalibrationFromLine(line string) (*Calibration, error) {
+func unspellDigits(line string) string {
+	numbers := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
+
+	modifiedLine := line
+	for i, n := range numbers {
+		value := i + 1
+		r := regexp.MustCompile(n)
+		modifiedLine = r.ReplaceAllString(modifiedLine, strconv.Itoa(value))
+	}
+
+	return modifiedLine
+}
+
+func extractDigitsFromLine(line string) ([]int, error) {
+	line = unspellDigits(line)
+
 	r, err := regexp.Compile("([0-9])")
 	if err != nil {
 		return nil, err
@@ -61,14 +76,29 @@ func CreateCalibrationFromLine(line string) (*Calibration, error) {
 	digits := []int{}
 
 	for _, f := range findings {
-		intval, err := strconv.Atoi(f[len(f)-1])
-		if err != nil {
-			panic(err)
-		}
+		found := f[len(f)-1]
 
-		digits = append(digits, intval)
+		if len(found) == 1 {
+			intval, err := strconv.Atoi(f[len(f)-1])
+			if err != nil {
+				return nil, err
+			}
+			digits = append(digits, intval)
+		}
 	}
 
+	return digits, nil
+}
+
+func createCalibrationFromLine(line string) (*Calibration, error) {
+	digits, err := extractDigitsFromLine(line)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(digits) == 0 {
+		digits = append(digits, 0)
+	}
 	if len(digits) == 1 {
 		digits = append(digits, digits[0])
 	}
