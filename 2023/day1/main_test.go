@@ -21,6 +21,8 @@ func TestCreateCalibrationFromLine(t *testing.T) {
 		{"4nineeightseven2", 42},
 		{"zoneight234", 14},
 		{"7pqrstsixteen", 76},
+		{"eighthree", 83},
+		{"sevenine", 79},
 	}
 
 	for _, test := range tests {

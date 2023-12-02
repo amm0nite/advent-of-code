@@ -72,7 +72,7 @@ func extractDigitsFromLine(line string) ([]int, error) {
 			if number < 1 {
 				continue
 			}
-			buffer = ""
+			buffer = buffer[len(buffer)-1:]
 		}
 		digits = append(digits, number)
 	}
