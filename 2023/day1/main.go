@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -51,40 +50,31 @@ func solve(lines []string) (int, error) {
 	return doc.sum(), nil
 }
 
-func unspellDigits(line string) string {
+func wordToDigit(word string) int {
 	numbers := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
-
-	modifiedLine := line
-	for i, n := range numbers {
-		value := i + 1
-		r := regexp.MustCompile(n)
-		modifiedLine = r.ReplaceAllString(modifiedLine, strconv.Itoa(value))
+	for index, number := range numbers {
+		if strings.HasSuffix(word, number) {
+			return index + 1
+		}
 	}
-
-	return modifiedLine
+	return 0
 }
 
 func extractDigitsFromLine(line string) ([]int, error) {
-	line = unspellDigits(line)
-
-	r, err := regexp.Compile("([0-9])")
-	if err != nil {
-		return nil, err
-	}
-
-	findings := r.FindAllStringSubmatch(line, -1)
 	digits := []int{}
+	buffer := ""
 
-	for _, f := range findings {
-		found := f[len(f)-1]
-
-		if len(found) == 1 {
-			intval, err := strconv.Atoi(f[len(f)-1])
-			if err != nil {
-				return nil, err
+	for _, c := range line {
+		number, err := strconv.Atoi(string(c))
+		if err != nil {
+			buffer += string(c)
+			number = wordToDigit(buffer)
+			if number < 1 {
+				continue
 			}
-			digits = append(digits, intval)
+			buffer = ""
 		}
+		digits = append(digits, number)
 	}
 
 	return digits, nil

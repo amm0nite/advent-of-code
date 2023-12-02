@@ -5,29 +5,32 @@ import (
 	"testing"
 )
 
-func TestExtractDigits(t *testing.T) {
+func TestCreateCalibrationFromLine(t *testing.T) {
 	tests := []struct {
 		line     string
-		expected []int
+		expected int
 	}{
-		{"treb7uchet", []int{7}},
-		{"two1nine", []int{2, 1, 9}},
-		{"eightwothree", []int{8, 2, 3}},
+		{"1abc2", 12},
+		{"pqr3stu8vwx", 38},
+		{"a1b2c3d4e5f", 15},
+		{"treb7uchet", 77},
+		{"two1nine", 29},
+		{"eightwothree", 83},
+		{"abcone2threexyz", 13},
+		{"xtwone3four", 24},
+		{"4nineeightseven2", 42},
+		{"zoneight234", 14},
+		{"7pqrstsixteen", 76},
 	}
 
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("test:%s", test.line), func(t *testing.T) {
-			res, err := extractDigitsFromLine(test.line)
+			res, err := createCalibrationFromLine(test.line)
 			if err != nil {
 				t.Error(err)
 			}
-			if len(res) != len(test.expected) {
-				t.Errorf("len(res) = %d; want %d", len(res), len(test.expected))
-			}
-			for i, v := range res {
-				if v != test.expected[i] {
-					t.Errorf("res[%d] = %d; want %d", i, v, test.expected[i])
-				}
+			if res.intval() != test.expected {
+				t.Errorf("%d %d (%d) want %d", res.first, res.second, res.intval(), test.expected)
 			}
 		})
 	}
