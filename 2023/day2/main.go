@@ -18,6 +18,7 @@ var Colors = []string{"red", "green", "blue"}
 
 type Game struct {
 	selection []int
+	powers    []int
 }
 
 type Token struct {
@@ -105,7 +106,8 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(game.res())
+	fmt.Println(game.res1())
+	fmt.Println(game.res2())
 }
 
 func isSeparator(c rune) bool {
@@ -173,6 +175,10 @@ func (bh *BagHint) valid() bool {
 	return bh.red <= MaxRed && bh.green <= MaxGreen && bh.blue <= MaxBlue
 }
 
+func (bh *BagHint) power() int {
+	return bh.red * bh.green * bh.blue
+}
+
 func intMax(a int, b int) int {
 	if a > b {
 		return a
@@ -208,6 +214,7 @@ func (g *Game) process(sentence *Sentence) error {
 		}
 	}
 
+	g.powers = append(g.powers, hint.power())
 	if hint.valid() {
 		g.selection = append(g.selection, id.toInt())
 	}
@@ -215,10 +222,18 @@ func (g *Game) process(sentence *Sentence) error {
 	return nil
 }
 
-func (g *Game) res() int {
+func intSum(ints []int) int {
 	sum := 0
-	for _, s := range g.selection {
-		sum += s
+	for _, i := range ints {
+		sum += i
 	}
 	return sum
+}
+
+func (g *Game) res1() int {
+	return intSum(g.selection)
+}
+
+func (g *Game) res2() int {
+	return intSum(g.powers)
 }

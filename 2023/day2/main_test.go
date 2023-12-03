@@ -7,8 +7,9 @@ import (
 
 func TestSolve(t *testing.T) {
 	tests := []struct {
-		lines    []string
-		expected int
+		lines []string
+		res1  int
+		res2  int
 	}{
 		{
 			[]string{
@@ -19,6 +20,7 @@ func TestSolve(t *testing.T) {
 				"Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
 			},
 			8,
+			2286,
 		},
 	}
 
@@ -26,9 +28,13 @@ func TestSolve(t *testing.T) {
 		t.Run(fmt.Sprintf("#%d", i), func(t *testing.T) {
 			game := &Game{}
 			game.solve(test.lines)
-			res := game.res()
-			if res != test.expected {
-				t.Errorf("res=%d want %d", res, test.expected)
+			res1 := game.res1()
+			res2 := game.res2()
+			if res1 != test.res1 {
+				t.Errorf("res1=%d want %d", res1, test.res1)
+			}
+			if res2 != test.res2 {
+				t.Errorf("res2=%d want %d", res2, test.res2)
 			}
 		})
 	}
