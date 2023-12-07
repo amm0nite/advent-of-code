@@ -40,6 +40,10 @@ func (t *Token) ToInt() int {
 	return value
 }
 
+func (t *Token) Len() int {
+	return len(t.Buffer)
+}
+
 func (t *Token) isEmpty() bool {
 	return t.Buffer == ""
 }
@@ -92,18 +96,20 @@ func (p *Parser) isSymbol(c rune) bool {
 
 func (p *Parser) parse(pos int, line string) *Sentence {
 	tokens := []Token{}
-	current := &Token{}
+	current := &Token{Line: pos, Col: 1}
 
 	for index, c := range line {
 		col := index + 1
+
 		if p.isSymbol(c) {
 			if !current.isEmpty() {
 				tokens = append(tokens, *current)
-				current = &Token{Line: pos, Col: col + 1}
 			}
-			current.append(c)
-			tokens = append(tokens, *current)
+			symbol := &Token{Line: pos, Col: col}
+			symbol.append(c)
+			tokens = append(tokens, *symbol)
 			current = &Token{Line: pos, Col: col + 1}
+
 			continue
 		}
 
