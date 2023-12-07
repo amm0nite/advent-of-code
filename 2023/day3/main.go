@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const InputFileName = "input_test.txt"
+const InputFileName = "input.txt"
 
 func isPart(t *lib.Token) bool {
 	return !t.IsInt() && t.Buffer != "."
@@ -70,7 +70,7 @@ func solve(filename string) (int, error) {
 	fmt.Println(partSymbols)
 	fmt.Println(partNumbers)
 
-	selection := &lib.IntSet{}
+	selection := []int{}
 	for _, partSymbol := range partSymbols {
 		for _, partNumber := range partNumbers {
 			x0 := partSymbol.col
@@ -83,16 +83,16 @@ func solve(filename string) (int, error) {
 			y2 := partNumber.line
 
 			if lib.IsNeighbour(x0, y0, x1, y1) {
-				selection.Add(partNumber.value)
+				selection = append(selection, partNumber.value)
 				continue
 			}
 			if lib.IsNeighbour(x0, y0, x2, y2) {
-				selection.Add(partNumber.value)
+				selection = append(selection, partNumber.value)
 				continue
 			}
 		}
 	}
 
 	fmt.Println(selection)
-	return selection.Sum(), nil
+	return lib.IntSum(selection), nil
 }
