@@ -12,16 +12,18 @@ func isPart(t *lib.Token) bool {
 }
 
 func main() {
-	res, err := solve(InputFileName)
+	res1, res2, err := solve(InputFileName)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(res)
+	fmt.Println(res1)
+	fmt.Println(res2)
 }
 
 type PartSymbol struct {
-	line int
-	col  int
+	line   int
+	col    int
+	symbol rune
 }
 
 type PartNumber struct {
@@ -31,7 +33,7 @@ type PartNumber struct {
 	value int
 }
 
-func solve(filename string) (int, error) {
+func solve(filename string) (int, int, error) {
 	list := ".*#$&=+-%@/"
 	symbols := []rune{}
 	for _, c := range list {
@@ -51,7 +53,7 @@ func solve(filename string) (int, error) {
 		if sym == nil {
 			break
 		}
-		partSymbol := &PartSymbol{line: sym.Line, col: sym.Col}
+		partSymbol := &PartSymbol{line: sym.Line, col: sym.Col, symbol: sym.ToRune()}
 		partSymbols = append(partSymbols, *partSymbol)
 	}
 
@@ -70,29 +72,67 @@ func solve(filename string) (int, error) {
 	fmt.Println(partSymbols)
 	fmt.Println(partNumbers)
 
+	schematic := &Schematic{partSymbols: partSymbols, partNumbers: partNumbers}
+	return schematic.solve1(), schematic.solve2(), nil
+}
+
+type Schematic struct {
+	partSymbols []PartSymbol
+	partNumbers []PartNumber
+}
+
+func isAdjacent(ps PartSymbol, pn PartNumber) bool {
+	x0 := ps.col
+	y0 := ps.line
+
+	x1 := pn.start
+	y1 := pn.line
+
+	x2 := pn.end
+	y2 := pn.line
+
+	if lib.IsNeighbour(x0, y0, x1, y1) {
+		return true
+	}
+	if lib.IsNeighbour(x0, y0, x2, y2) {
+		return true
+	}
+	return false
+}
+
+func (s *Schematic) solve1() int {
 	selection := []int{}
-	for _, partSymbol := range partSymbols {
-		for _, partNumber := range partNumbers {
-			x0 := partSymbol.col
-			y0 := partSymbol.line
-
-			x1 := partNumber.start
-			y1 := partNumber.line
-
-			x2 := partNumber.end
-			y2 := partNumber.line
-
-			if lib.IsNeighbour(x0, y0, x1, y1) {
+	for _, partSymbol := range s.partSymbols {
+		for _, partNumber := range s.partNumbers {
+			if isAdjacent(partSymbol, partNumber) {
 				selection = append(selection, partNumber.value)
-				continue
-			}
-			if lib.IsNeighbour(x0, y0, x2, y2) {
-				selection = append(selection, partNumber.value)
-				continue
 			}
 		}
 	}
 
-	fmt.Println(selection)
-	return lib.IntSum(selection), nil
+	return lib.IntSum(selection)
+}
+
+func (s *Schematic) solve2() int {
+	ratios := []int{}
+
+	for _, partSymbol := range s.partSymbols {
+		if partSymbol.symbol != '*' {
+			continue
+		}
+
+		numbers := []int{}
+		for _, partNumber := range s.partNumbers {
+			if isAdjacent(partSymbol, partNumber) {
+				numbers = append(numbers, partNumber.value)
+			}
+		}
+
+		if len(numbers) == 2 {
+			ratio := lib.IntProduct(numbers)
+			ratios = append(ratios, ratio)
+		}
+	}
+
+	return lib.IntSum(ratios)
 }

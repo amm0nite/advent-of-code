@@ -15,6 +15,14 @@ func IntSum(ints []int) int {
 	return sum
 }
 
+func IntProduct(ints []int) int {
+	product := 1
+	for _, i := range ints {
+		product *= i
+	}
+	return product
+}
+
 func IsNeighbour(x0 int, y0 int, x1 int, y1 int) bool {
 	return x1 >= x0-1 && x1 <= x0+1 && y1 >= y0-1 && y1 <= y0+1
 }

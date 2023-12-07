@@ -40,6 +40,10 @@ func (t *Token) ToInt() int {
 	return value
 }
 
+func (t *Token) ToRune() rune {
+	return rune(t.Buffer[0])
+}
+
 func (t *Token) Len() int {
 	return len(t.Buffer)
 }
