@@ -15,12 +15,13 @@ func main() {
 		panic(err)
 	}
 
-	res, err := solve(string(data))
+	res1, res2, err := solve(string(data))
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(res)
+	fmt.Println(res1)
+	fmt.Println(res2)
 }
 
 type Pile struct {
@@ -37,7 +38,7 @@ func IsInt(t *lib.Token) bool {
 	return t.IsInt()
 }
 
-func solve(raw string) (int, error) {
+func solve(raw string) (int, int, error) {
 	parser := lib.CreateParser(raw, []rune{':', ' ', '|'})
 	pile := &Pile{}
 
@@ -69,19 +70,23 @@ func solve(raw string) (int, error) {
 		parser.SkipSentence()
 	}
 
-	return pile.solve1(), nil
+	return pile.solve1(), pile.solve2(), nil
 }
 
-func (c *Card) score() int {
+func (c *Card) matches() int {
 	sum := 0
 	for _, w := range c.winning {
 		if lib.IntSliceContains(c.roster, w) {
 			sum++
 		}
 	}
+	return sum
+}
 
-	score := int(math.Pow(2, float64(sum-1)))
-	fmt.Println(c.winning, c.roster, sum, score)
+func (c *Card) score() int {
+	matches := c.matches()
+	score := int(math.Pow(2, float64(matches-1)))
+	//fmt.Println(c.winning, c.roster, matches, score)
 	return score
 }
 
@@ -93,6 +98,30 @@ func (p *Pile) solve1() int {
 	return sum
 }
 
+func (p *Pile) solve2() int {
+	dupes := []*Card{}
+	for _, c := range p.cards {
+		dupes = append(dupes, c)
+	}
+
+	i := 0
+	for {
+		card := dupes[i]
+		matches := card.matches()
+		for j := 0; j < matches; j++ {
+			dupes = append(dupes, p.cards[card.number+j])
+		}
+
+		i++
+		if i == len(dupes) {
+			break
+		}
+	}
+
+	//fmt.Println(dupes)
+	return len(dupes)
+}
+
 func (c *Card) String() string {
-	return fmt.Sprintf("(#%d %d %d)", c.number, len(c.winning), len(c.roster))
+	return fmt.Sprintf("(#%d)", c.number)
 }
