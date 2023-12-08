@@ -31,13 +31,17 @@ type IntSet struct {
 	values []int
 }
 
-func (is *IntSet) contains(value int) bool {
-	for _, v := range is.values {
-		if v == value {
+func IntSliceContains(s []int, e int) bool {
+	for _, v := range s {
+		if v == e {
 			return true
 		}
 	}
 	return false
+}
+
+func (is *IntSet) contains(value int) bool {
+	return IntSliceContains(is.values, value)
 }
 
 func (is *IntSet) Add(value int) {

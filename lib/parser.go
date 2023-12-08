@@ -55,24 +55,43 @@ func (t *Token) append(c rune) {
 	t.Buffer += string(c)
 }
 
-func (p *Parser) Next(validator func(t *Token) bool) *Token {
+type TokenValidator func(t *Token) bool
+
+func (p *Parser) NextInLine(validator TokenValidator) *Token {
+	i := p.cursor.sentence
+	if i >= len(p.Sentences) {
+		return nil
+	}
+
+	for p.cursor.token < len(p.Sentences[i].Tokens) {
+		j := p.cursor.token
+		p.cursor.token++
+
+		curr := p.Sentences[i].Tokens[j]
+		if validator(&curr) {
+			return &curr
+		}
+	}
+
+	return nil
+}
+
+func (p *Parser) Next(validator TokenValidator) *Token {
 	for p.cursor.sentence < len(p.Sentences) {
-		i := p.cursor.sentence
-
-		for p.cursor.token < len(p.Sentences[i].Tokens) {
-			j := p.cursor.token
-			p.cursor.token++
-
-			curr := p.Sentences[i].Tokens[j]
-			if validator(&curr) {
-				return &curr
-			}
+		found := p.NextInLine(validator)
+		if found != nil {
+			return found
 		}
 
 		p.cursor.token = 0
 		p.cursor.sentence++
 	}
 	return nil
+}
+
+func (p *Parser) SkipSentence() {
+	p.cursor.token = 0
+	p.cursor.sentence++
 }
 
 func (p *Parser) ResetCursor() {
