@@ -3,6 +3,7 @@ package main
 import (
 	"advent-of-code/lib"
 	"fmt"
+	"os"
 )
 
 const InputFileName = "input.txt"
@@ -12,10 +13,16 @@ func isPart(t *lib.Token) bool {
 }
 
 func main() {
-	res1, res2, err := solve(InputFileName)
+	data, err := os.ReadFile(InputFileName)
 	if err != nil {
 		panic(err)
 	}
+
+	res1, res2, err := solve(string(data))
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Println(res1)
 	fmt.Println(res2)
 }
@@ -33,17 +40,14 @@ type PartNumber struct {
 	value int
 }
 
-func solve(filename string) (int, int, error) {
+func solve(input string) (int, int, error) {
 	list := ".*#$&=+-%@/"
 	symbols := []rune{}
 	for _, c := range list {
 		symbols = append(symbols, c)
 	}
 
-	parser, err := lib.CreateParser(filename, symbols)
-	if err != nil {
-		panic(err)
-	}
+	parser := lib.CreateParser(input, symbols)
 
 	parser.ResetCursor()
 	partSymbols := []PartSymbol{}

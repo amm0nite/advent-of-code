@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"os"
 	"strconv"
 	"strings"
 )
@@ -81,14 +80,6 @@ func (p *Parser) ResetCursor() {
 	p.cursor.token = 0
 }
 
-func readLines(filename string) ([]string, error) {
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	return strings.Split(string(data), "\n"), nil
-}
-
 func (p *Parser) isSymbol(c rune) bool {
 	for _, s := range p.Symbols {
 		if c == s {
@@ -127,14 +118,10 @@ func (p *Parser) parse(pos int, line string) *Sentence {
 	return &Sentence{Tokens: tokens}
 }
 
-func CreateParser(filename string, symbols []rune) (*Parser, error) {
+func CreateParser(input string, symbols []rune) *Parser {
 	parser := &Parser{Symbols: symbols}
 
-	lines, err := readLines(filename)
-	if err != nil {
-		return nil, err
-	}
-
+	lines := strings.Split(input, "\n")
 	for index, line := range lines {
 		if line == "" {
 			continue
@@ -144,5 +131,5 @@ func CreateParser(filename string, symbols []rune) (*Parser, error) {
 		parser.Sentences = append(parser.Sentences, *sentence)
 	}
 
-	return parser, nil
+	return parser
 }
