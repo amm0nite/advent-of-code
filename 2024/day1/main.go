@@ -50,11 +50,18 @@ func solve(data string) (int, int, error) {
 	sort.Ints(rightList)
 
 	distances := []int{}
+	similarities := []int{}
+
 	for index, leftValue := range leftList {
+		// part1
 		rightValue := rightList[index]
 		distance := lib.IntDistance(leftValue, rightValue)
 		distances = append(distances, distance)
+
+		// part2
+		count := lib.IntCountOccurences(rightList, leftValue)
+		similarities = append(similarities, leftValue*count)
 	}
 
-	return lib.IntSum(distances), 0, nil
+	return lib.IntSum(distances), lib.IntSum(similarities), nil
 }

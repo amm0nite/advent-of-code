@@ -31,6 +31,16 @@ func IntProduct(ints []int) int {
 	return product
 }
 
+func IntCountOccurences(ints []int, search int) int {
+	res := 0
+	for _, i := range ints {
+		if i == search {
+			res += 1
+		}
+	}
+	return res
+}
+
 func IsNeighbour(x0 int, y0 int, x1 int, y1 int) bool {
 	return x1 >= x0-1 && x1 <= x0+1 && y1 >= y0-1 && y1 <= y0+1
 }
