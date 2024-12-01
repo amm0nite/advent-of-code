@@ -152,3 +152,7 @@ func CreateParser(input string, symbols []rune) *Parser {
 
 	return parser
 }
+
+func IntValidator(t *Token) bool {
+	return t.IsInt()
+}

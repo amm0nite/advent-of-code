@@ -1,6 +1,6 @@
 module advent-of-code
 
-go 1.18
+go 1.23
 
 require (
 	github.com/Shopify/go-lua v0.0.0-20221004153744-91867de107cf

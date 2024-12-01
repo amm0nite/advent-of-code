@@ -7,6 +7,14 @@ func IntMax(a int, b int) int {
 	return b
 }
 
+func IntDistance(a int, b int) int {
+	res := a - b
+	if res < 0 {
+		res = res * -1
+	}
+	return res
+}
+
 func IntSum(ints []int) int {
 	sum := 0
 	for _, i := range ints {
