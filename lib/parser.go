@@ -99,6 +99,10 @@ func (p *Parser) ResetCursor() {
 	p.cursor.token = 0
 }
 
+func (p *Parser) EndReached() bool {
+	return p.cursor.sentence >= len(p.Sentences)
+}
+
 func (p *Parser) isSymbol(c rune) bool {
 	for _, s := range p.Symbols {
 		if c == s {
