@@ -27,6 +27,7 @@ func solve(data string) (int, int, error) {
 	parser := lib.CreateParser(data, []rune{' '})
 
 	safeReportCount := 0
+	dampenedSafeReportCount := 0
 
 	for !parser.EndReached() {
 		levels := []int{}
@@ -38,22 +39,60 @@ func solve(data string) (int, int, error) {
 			levels = append(levels, level.ToInt())
 		}
 
-		if assessSafety(levels) {
+		safe, dampened := assessWithDampening(levels)
+		if safe && !dampened {
 			safeReportCount++
+		}
+		if safe {
+			dampenedSafeReportCount++
 		}
 
 		parser.SkipSentence()
 	}
 
-	return safeReportCount, 0, nil
+	return safeReportCount, dampenedSafeReportCount, nil
 }
 
-func assessSafety(levels []int) bool {
+func assessWithDampening(levels []int) (safe bool, dampened bool) {
+	isSafe, index := assessSafety(levels)
+	if isSafe {
+		return true, false
+	}
+
+	var copiedLevels []int
+
+	copiedLevels = lib.IntCopy(levels)
+	levelsDampenedAtStart := copiedLevels[1:]
+	isSafe, _ = assessSafety(levelsDampenedAtStart)
+	if isSafe {
+		return true, true
+	}
+
+	copiedLevels = lib.IntCopy(levels)
+	levelsDampenedFurther := append(copiedLevels[:index], copiedLevels[index+1:]...)
+	isSafe, _ = assessSafety(levelsDampenedFurther)
+	if isSafe {
+		return true, true
+	}
+
+	copiedLevels = lib.IntCopy(levels)
+	levelsDampenedFurtherPre := append(copiedLevels[:index-1], copiedLevels[index:]...)
+	isSafe, _ = assessSafety(levelsDampenedFurtherPre)
+	if isSafe {
+		return true, true
+	}
+
+	return false, true
+}
+
+func assessSafety(levels []int) (bool, int) {
 	previousLevel := levels[0]
 	trend := "unknown"
 	levels = levels[1:]
 
-	for _, level := range levels {
+	for index, level := range levels {
+		pos := index + 1
+
 		if trend == "unknown" {
 			if level > previousLevel {
 				trend = "up"
@@ -64,19 +103,19 @@ func assessSafety(levels []int) bool {
 		}
 
 		if level < previousLevel && trend == "up" {
-			return false
+			return false, pos
 		}
 		if level > previousLevel && trend == "down" {
-			return false
+			return false, pos
 		}
 
 		dist := lib.IntDistance(level, previousLevel)
 		if dist == 0 || dist > 3 {
-			return false
+			return false, pos
 		}
 
 		previousLevel = level
 	}
 
-	return true
+	return true, -1
 }

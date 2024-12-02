@@ -41,6 +41,12 @@ func IntCountOccurences(ints []int, search int) int {
 	return res
 }
 
+func IntCopy(ints []int) []int {
+	res := make([]int, len(ints))
+	copy(res, ints)
+	return res
+}
+
 func IsNeighbour(x0 int, y0 int, x1 int, y1 int) bool {
 	return x1 >= x0-1 && x1 <= x0+1 && y1 >= y0-1 && y1 <= y0+1
 }
