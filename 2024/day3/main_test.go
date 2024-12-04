@@ -19,6 +19,17 @@ func TestExtractOps(t *testing.T) {
 				{operator: "mul", arg1: 8, arg2: 5},
 			},
 		},
+		{
+			"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))",
+			[]Operation{
+				{operator: "mul", arg1: 2, arg2: 4},
+				{operator: "don't", arg1: 0, arg2: 0},
+				{operator: "mul", arg1: 5, arg2: 5},
+				{operator: "mul", arg1: 11, arg2: 8},
+				{operator: "do", arg1: 0, arg2: 0},
+				{operator: "mul", arg1: 8, arg2: 5},
+			},
+		},
 	}
 	for i, test := range tests {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {

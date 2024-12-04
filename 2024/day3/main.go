@@ -34,19 +34,31 @@ func main() {
 
 func solve(data string) (int, int, error) {
 	sum := 0
+	filteredSum := 0
+	enabled := true
 
 	lines := strings.Split(data, "\n")
 	for _, line := range lines {
 		operations := extractOps(line)
 		for _, op := range operations {
+			if op.operator == "don't" {
+				enabled = false
+			}
+			if op.operator == "do" {
+				enabled = true
+			}
+
 			value, err := op.calc()
 			if err == nil {
 				sum += value
+				if enabled {
+					filteredSum += value
+				}
 			}
 		}
 	}
 
-	return sum, 0, nil
+	return sum, filteredSum, nil
 }
 
 func extractOps(line string) (operations []Operation) {
@@ -73,16 +85,13 @@ func extractOps(line string) (operations []Operation) {
 }
 
 func (o *Operation) ingest(r rune) error {
-	if o.operator == "" && isLowercaseLetter(r) {
+	if o.operator == "" && (isLowercaseLetter(r) || r == '\'') {
 		o.buffer = append(o.buffer, r)
-		if len(o.buffer) > 3 {
-			o.buffer = o.buffer[1:]
-		}
 		return nil
 	}
 
-	if o.operator == "" && len(o.buffer) == 3 && r == '(' {
-		o.operator = string(o.buffer)
+	if o.operator == "" && len(o.buffer) > 1 && r == '(' {
+		o.operator = cleanOperator(string(o.buffer))
 		o.buffer = []rune{}
 		return nil
 	}
@@ -105,6 +114,11 @@ func (o *Operation) ingest(r rune) error {
 		return nil
 	}
 
+	if o.operator != "" && len(o.buffer) == 0 && r == ')' {
+		o.complete = true
+		return nil
+	}
+
 	return fmt.Errorf("unexpected char %c", r)
 }
 
@@ -113,6 +127,19 @@ func (o *Operation) calc() (int, error) {
 		return o.arg1 * o.arg2, nil
 	}
 	return 0, fmt.Errorf("failed to calc %s", o.operator)
+}
+
+func cleanOperator(operator string) string {
+	if strings.HasSuffix(operator, "mul") {
+		return "mul"
+	}
+	if strings.HasSuffix(operator, "do") {
+		return "do"
+	}
+	if strings.HasSuffix(operator, "don't") {
+		return "don't"
+	}
+	return operator
 }
 
 func isLowercaseLetter(r rune) bool {
